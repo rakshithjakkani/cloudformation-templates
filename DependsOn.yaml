@@ -1,0 +1,17 @@
+Parameters:
+  ImageId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  
+
+Resources:
+  Mys3bucket:
+    Type: AWS::S3::Bucket
+    
+# Instance will be created after the creation of s3 bucket as we mentioned DependsOn  
+  Myinstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: t2.micro
+    DependsOn: Mys3bucket
