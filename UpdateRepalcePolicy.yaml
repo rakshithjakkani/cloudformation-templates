@@ -1,0 +1,17 @@
+Parameters:
+  BucketName:
+    Type: String
+
+Resources:
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+
+# When we mention UpdateReplacePolicy we need to consider some points
+    # For example I want to change bucket name, I saw that if i change bucket Name the bucket will replace, In that case we can use this policy.
+    # When I change the bucket name by updating the same cloudformation stake, Another bucket will create. Cloudformation holds the newly generated physical ID of a resource and old physsical ID will be removed from stake
+    # Since there will be creation of two buckets 
+    # As we mention deletionPolicy retain the two buckets won't be able delete. we can delte by manually.
