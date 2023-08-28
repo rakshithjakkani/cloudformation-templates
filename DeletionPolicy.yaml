@@ -1,0 +1,7 @@
+Resources:
+  Mys3bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+
+# DeletionPolicy which prevent the resource from being deleted in case of cloudformation template deletion. 
+# Even if the bucket is empty the bucket won't delete. 
