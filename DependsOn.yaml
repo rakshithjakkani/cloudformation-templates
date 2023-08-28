@@ -8,7 +8,8 @@ Resources:
   Mys3bucket:
     Type: AWS::S3::Bucket
     
-# Instance will be created after the creation of s3 bucket as we mentioned DependsOn  
+# Instance will be created after the creation of s3 bucket as we mentioned DependsOn.
+# When deleting the resources first instance will be deleted and then bucket will deleted.
   Myinstance:
     Type: AWS::EC2::Instance
     Properties:
