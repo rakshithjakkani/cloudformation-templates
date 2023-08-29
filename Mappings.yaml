@@ -1,0 +1,24 @@
+Mappings:
+  AWSRegionArch2AMI:
+    ap-south-1:
+      HVM64: ami-49359234y83
+    ap-southeast-1:
+      HVM64: ami-098473742fjdr
+    eu-central-1:
+      HVM64: ami-sdiu038403
+
+  EnvironmentToInstanceType:
+    development:
+      instanceType: t2.micro
+    production:
+      instanceType: t3.medium
+    
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !FindInMap [EnvironmetToInstaceType,
+      !Ref 'EnvironmentName', instanceType]
+      ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', HVM64]
+
+# AWS::Region is the psudo parameter. There are number of psudo parameters are there please go and check cloudformation documentation
