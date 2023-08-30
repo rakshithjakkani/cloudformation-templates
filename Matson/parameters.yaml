@@ -1,0 +1,32 @@
+##################----costengin-seubnets,security group parameters--########
+Parameters:
+  Subnetparameter:
+    Type: String
+    Description: "subnetIds for Lambda function deployments"
+    Default: "<>"    
+  securitygroupparameter:
+    Type: String
+    Description: "SecurityGroups Ids for Lambda function deployments"
+    Default: "<>"   
+
+###########--resources for parmater store---########### 
+Resources:
+  Parameter1:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Type: "StringList"
+      Tier: Standard
+      Name: "test/rakshith"
+      Value: !Join
+        - ","
+        - - Ref: Subnetparameter
+
+  Parameter2:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Type: "StringList"
+      Tier: Standard
+      Name: "/rakshith/test/"
+      Value: !Join
+        - ","
+        - - Ref: securitygroupparameter
