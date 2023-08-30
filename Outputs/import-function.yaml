@@ -1,0 +1,20 @@
+Mappings:
+  EC2InstanceIDs:
+    ap-south-1:
+      HVM64: ami-06f621d90fa29f6d0
+    eu-central-1:
+      HVM64: ami-0766f68f0b06ab145
+
+Resources:
+  MYEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !FindInMap [EC2InstanceIDs, !Ref "AWS::Region", HVM64]
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        - !ImportValue SSHSGName
+      SubnetId: subnet-0417af716cca588c6
+      Tags: 
+        - Key: Name
+          Value: DummyInstance
+

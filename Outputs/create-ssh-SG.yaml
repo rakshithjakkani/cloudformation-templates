@@ -1,0 +1,51 @@
+#####---syntax of ouptputs---#####
+# Outputs:
+#   Logical ID:
+#     Description: Information about the value
+#     Value: Value to return
+#     Export:
+#       Name: Name of resource to export
+
+##--sample resource--##
+Resources:
+  DummySG:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "dummy sg group"
+      GroupName: "dummy-sg"
+      SecurityGroupEgress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: "Name"
+          Value: "dummy-sg"
+      VpcId: "vpc-079f39ad07ac07089"
+  
+
+
+
+Outputs:
+  DummySGName:
+    Description: "returns sg Name"
+    Value: !Ref DummySG # this will give sg ID
+    Export:
+      Name: SSHSGName
+  
+  DummySGVPCid:
+    Description: "returns sg Name"
+    Value: !GetAtt DummySG.VpcId # this returns vpc id that used by this sg
+    Export:
+      Name: SSHSGVpcID
+    
+  DummySGGroupId:
+    Description: "returns sg Name"
+    Value: !GetAtt DummySG.GroupId # this returns group id 
+    Export:
+      Name: SSHSGID
