@@ -1,0 +1,47 @@
+##############---Optional Atributes in Resources---################
+* DependsOn: 
+    * It is very useful in drawing dependency between two Resources.
+    * For example, when you want to create Eks cluster after creating a security group in this case we will be define "DependsOn" at the EKS. 
+* DeletionPolicy: 
+    * procted resources from being deleted even if the cloudformation stake is delete (ex: RDS Database)
+    * DeletionPolicy=Retain--->
+        * specify on resource to prevent/backup in case of cloudformation deletion.
+        * To keep resource specify Retain (Works for any resource)
+    DeletionPolicy=Snapshot--->
+        * EBS volumes, ElastiCatche cluster, ElastiCatche ReplicationGroup.
+        * RDS DBInstance, RDS DBCluster, Redshift cluster, Neptune DBCluster.
+    DeletionPolicy=Delete (Default Behaviour)
+        * for rds db cluster the default policy is Snapshot.
+* UpdateReplacePolicy:
+    * Protect resources from being replace when cloudformation stake is updating. 
+* CreationPolicy:
+* UpdatePolicy:
+* Metadata:
+
+
+############ QUESTIONS##############
+1. can we create dynamic number of resources.
+    * yes we can create by using cloudformation Macros and Transform.
+
+2. Is every AWS service supported by cloudformation ?
+    * Almost. Only few services are not there yet.
+    * You can work arount cloudformation custom Resources.
+
+###############----MAPPINGS----##############
+* Mappings are fixed variables within your cloudformation template.
+* They are very hady in defferentiate between different environment(dev and uat), regions(aws regions) and AMI.
+* All the values are hardcoded within the template.
+* Mappings cna be used in a case when we use. 
+    * regions
+    * aws account
+    * environment
+    * Availability Zone
+* parameters can be used when values are user specific.
+
+
+###################----OUTPUTS----################
+* Outputs are Optional blocks in the cloudformation template.
+* We can use this outputs in case when one template resource values are required in other templates in a single cloudformation chain.
+* In the case of automation we can use this outputs in order to automate the infra provisioning. 
+* As part of automation we have to export the resource's outputs and then we can import these exported values into another stack.
+* For example in one stack we provisioned VPC subnets and in another stack we provisioned EKS cluster in such case we can use this outputs.
