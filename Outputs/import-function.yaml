@@ -18,3 +18,21 @@ Resources:
         - Key: Name
           Value: DummyInstance
 
+Outputs:
+  InstanceID:
+    value: !Ref MYEC2Instance
+  
+  InstanceAZ:
+    value: !GetAtt  MYEC2Instance.AvailabilityZone
+
+  InstancePrivateDNS:
+    value: !GetAtt MYEC2Instance.PrivateDnsName
+
+  InstancePrivateIP:
+    value: !GetAtt MYEC2Instance.PrivateIp
+
+  InstancePublicDNS:
+    value: !Ref MYEC2Instance.PublicDnsName
+
+  InstancePublicIP:
+    value: !Ref MYEC2Instance.PublicIP
