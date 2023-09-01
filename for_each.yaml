@@ -1,0 +1,24 @@
+# Fn::ForEach This is function which can be useful to create numbere of resources using single resource block
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::LanguageExtensions'
+Resources:
+  'Fn::ForEach::S3':
+    - BucketName
+    - [chinturet32, bantu2980]
+    - 'S3${BucketName}':
+        Type: AWS::S3::Bucket
+        Properties: 
+          BucketName: !Ref BucketName
+    
+
+
+
+
+
+
+
+
+
+
