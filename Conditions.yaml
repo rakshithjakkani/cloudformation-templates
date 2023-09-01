@@ -1,0 +1,87 @@
+# This template is written to understand How conditional statements works 
+# As you can observe I written a parameter called Environment by using that parameter I created a conditional statement
+# In the LatestAmiId parameter I used parameter store to fetch latest image of a amazon linux these are the public parametere store. We do not have to create that parameter store.
+Parameters:
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - dev
+      - uat
+      - prod
+    ConstraintDescription: please choose staging or dev or uat or prod only 
+  
+  VpcId:
+    Type: String
+  
+  SubnetId:
+    Type: String
+
+Conditions:
+  CreateProdResources: !Equals [ !Ref Environment, prod ]
+  CreateUatResources: !Equals [ !Ref Environment, uat ]
+
+
+
+Resources: 
+  dummyInstace:
+    Type: AWS::EC2::Instance
+    DependsOn: DummySG
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        - !Ref DummySG
+      SubnetId: !Ref SubnetId
+      KeyName: !Ref dummySSHKey
+      Tags: 
+        - Key: Name
+          Value: DummyInstance
+  
+  dummySSHKey:
+    Type: AWS::EC2::KeyPair
+    Properties: 
+      KeyFormat: pem
+      KeyName: cloudformation-test
+      KeyType: rsa
+      Tags: 
+        - Key: Name
+          Value: cloudformation-test
+  
+  DummySG: 
+    Type: AWS::EC2::SecurityGroup
+    DependsOn: dummySSHKey
+    Properties: 
+      GroupDescription: "dummy sg group"
+      GroupName: "dummy-sg"
+      SecurityGroupEgress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: "Name"
+          Value: "dummy-sg"
+      VpcId: !Ref VpcId
+
+  BasicParameter:
+    Type: AWS::SSM::Parameter
+    Condition: CreateUatResources
+    Properties:
+      Name: dummy/paramater
+      Type: StringList
+      Value: date,ls
+      Description: SSM Parameter of type StringList.
+      AllowedPattern: "^[a-zA-Z]{1,10}$"
+
+  
