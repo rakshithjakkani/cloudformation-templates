@@ -7,6 +7,11 @@
 #       Name: Name of resource to export
 
 ##--sample resource--##
+Parameters:
+  VpcId:
+    Type: String
+
+  
 Resources:
   DummySG:
     Type: AWS::EC2::SecurityGroup
@@ -26,8 +31,7 @@ Resources:
       Tags: 
         - Key: "Name"
           Value: "dummy-sg"
-      VpcId: "vpc-079f39ad07ac07089"
-  
+      VpcId: !Ref VpcId 
 
 
 
