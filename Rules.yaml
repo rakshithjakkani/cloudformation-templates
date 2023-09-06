@@ -42,6 +42,7 @@ Rules:
       # using Fn::Or function
       - Assert:
           'Fn::Or':
+          # In this rule I said to provision t2.micro or t2.nano if the environment is uat
             - !Equals [!Ref InstanceType, t2.micro]
             - !Equals [!Ref InstanceType, t2.nano]
       # using contains function

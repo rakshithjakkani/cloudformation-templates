@@ -45,3 +45,13 @@
 * In the case of automation we can use this outputs in order to automate the infra provisioning. 
 * As part of automation we have to export the resource's outputs and then we can import these exported values into another stack.
 * For example in one stack we provisioned VPC subnets and in another stack we provisioned EKS cluster in such case we can use this outputs.
+
+###################----RULES-----#################
+* Rules are used when requirment is:- with a single cloudformation templates have to provision multiple environments in such case we use This rules. 
+* Rules uses parameters to defaine in which environment should provision.
+* Rules uses number of cloudformation funtions(Fn::Or, Fn::Equals) in order to provision resources conditionally.
+
+##################----CFN-init----################
+* EC2 Instance usersdata script logs would be stored in /var/log//cloud-init-output.log file.
+* We can use Fn::Base64 cloudformation function while passing the usersdata script in the cloudformation.
+* 
