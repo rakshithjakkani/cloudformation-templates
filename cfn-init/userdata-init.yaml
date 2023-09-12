@@ -1,0 +1,70 @@
+Parameters:
+  KeyName:
+    Description: Name of the existing key pair in the account
+    Type: AWS::EC2::KeyPair::KeyName
+
+
+  SSHLocation:
+    Description: The Ip address range that can be used to ssh to the instance that we are provisioning. 
+    Type: String
+    Default: 0.0.0.0/0
+    ConstraintDescription: Must be a valid CIDR range. It should be in the form of x.x.x.x/x
+  
+  ImageId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  SubnetId:
+    Type: String
+  
+  VpcId:
+    Type: String
+
+
+  
+
+Resources:
+  dummyInstace:
+    Type: AWS::EC2::Instance
+    DependsOn: DummySG
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        - !Ref DummySG
+      SubnetId: !Ref SubnetId
+      KeyName: !Ref KeyName
+      UserData: 
+        # the pipe symbol represent the multiline string Fn::Base64 function is used to encrypt the userdata
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y 
+          yum install -y httpd mariadb-server
+          systemctl start httpd
+          systemctl enable httpd
+          usermod -a -G apache -ec2-user
+          chown -R ec2-user:apache /var/www
+          chmod 2775 /var/www
+      Tags: 
+        - Key: Name
+          Value: DummyInstance
+  
+  DummySG: 
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "dummy sg group"
+      GroupName: "dummy-sg"
+      SecurityGroupEgress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+      Tags: 
+        - Key: "Name"
+          Value: "dummy-sg"
+      VpcId: !Ref VpcId

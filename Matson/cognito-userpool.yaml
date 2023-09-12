@@ -1,0 +1,45 @@
+Resources:
+  Dummy:
+    Type: AWS::Cognito::UserPool
+    Properties: 
+      AccountRecoverySetting: 
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AdminCreateUserConfig: 
+        AllowAdminCreateUserOnly: true
+        InviteMessageTemplate:
+          EmailMessage: Your username is {username} and temporary password is {####}.<b>Welcome to the Matson Cost Engine user registration.   </b><br/><br/>
+          EmailSubject: Matson Cost Engine User Registration
+          SMSMessage: Your username is {username} and temporary password is {####}.
+      AliasAttributes: 
+        - email
+      AutoVerifiedAttributes: 
+        - email
+      DeletionProtection: INACTIVE
+      EmailConfiguration: 
+          EmailSendingAccount: COGNITO_DEFAULT
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailMessage: This is a notification from the Matson Cost Engine application.  A request was made to reset your password. {####}  If you did not make this request, please notify IT Help Desk.
+        EmailSubject: Matson Cost Engine Forgot Password
+        EmailMessageByLink: Click the following link to verify your account {##Verify Email##}
+      EnabledMfas: 
+        - SOFTWARE_TOKEN_MFA
+      MfaConfiguration: ON
+      Policies: 
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 4
+      UserAttributeUpdateSettings: 
+        AttributesRequireVerificationBeforeUpdate:
+          - email_verified
+      UsernameAttributes: 
+        - email
+      UsernameConfiguration: 
+         CaseSensitive: False
+      UserPoolName: dummy-test
+

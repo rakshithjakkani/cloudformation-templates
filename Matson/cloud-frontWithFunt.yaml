@@ -1,0 +1,160 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This template creates S3 bucket, Cloudfront Distribution for static website
+  hosting in Oregon region
+Parameters:
+  Environment:
+    Description: Please enter the name of the bucket to host the website
+    Type: String
+    AllowedValues:
+    - sandbox
+    - dev
+    - preprod
+    - prod
+  ApplicationName:
+    Description: Enter the name of the application
+    Type: String
+    Default: matson-costengine-web
+Resources:
+  mycloudfrontfunction:
+    Type: AWS::CloudFront::Function
+    Properties: 
+      AutoPublish: true
+      Name: test-2
+      FunctionCode: |
+
+        function handler(event) {
+          var response = event.response;
+          var headers = response.headers;
+
+      
+
+          // Set HTTP security headers
+          // Since JavaScript doesn't allow for hyphens in variable names, we use the dict["key"] notation 
+          headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload'}; 
+          headers['content-security-policy'] = { value: "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'"}; 
+          headers['x-content-type-options'] = { value: 'nosniff'}; 
+          headers['x-frame-options'] = {value: 'DENY'}; 
+          headers['x-xss-protection'] = {value: '1; mode=block'};
+
+    
+
+        // Return the response to viewers 
+
+        return response;
+        }
+      FunctionConfig: 
+        Comment: "creating for dummy"
+        Runtime: cloudfront-js-1.0
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: BucketOwnerFullControl
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      BucketName: !Sub matson-costengine-web-${Environment}
+      Tags:
+      - Key: Application
+        Value: !Sub ${ApplicationName}.${Environment}
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: S3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            CanonicalUser:
+              Fn::GetAtt:
+              - CloudFrontOriginAccessIdentity
+              - S3CanonicalUserId
+          Action: s3:GetObject
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Sub 'matson-costengine-web-${Environment}/*'
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: preprod-app-OriginAccessIdentity
+  CloudFrontDistribution:
+    DependsOn:
+    - S3Bucket
+    - CloudFrontOriginAccessIdentity
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        CacheBehaviors:
+          - TargetOriginId: costengineweb
+            ViewerProtocolPolicy: redirect-to-https
+            ForwardedValues:
+              fQueryString: true
+            PathPattern: /*
+            FunctionAssociations:
+              - EventType: viewer-response
+                FunctionARN: !GetAtt mycloudfrontfunction.FunctionARN
+        Origins:
+        - Id: costengineweb
+          DomainName:
+            Fn::Join:
+            - ''
+            - - matson-costengine-web-
+              - !Ref Environment
+              - ".s3.us-east-1.amazonaws.com"
+          S3OriginConfig:
+            OriginAccessIdentity:
+              Fn::Join:
+              - ''
+              - - origin-access-identity/cloudfront/
+                - Ref: CloudFrontOriginAccessIdentity
+        Enabled: 'true'
+        Comment: cloudfront to host costEngine portal
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: costengineweb
+          AllowedMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+          ForwardedValues:
+            QueryString: 'true'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+          MinTTL: '100'
+          SmoothStreaming: 'true'
+        PriceClass: PriceClass_All
+        CustomErrorResponses:
+        - ErrorCode: 403
+          ResponseCode: 200
+          ResponsePagePath: /index.html  # Example response page for 404 error
+          ErrorCachingMinTTL: 60
+      Tags:
+      - Key: Application
+        Value: !Sub ${ApplicationName}.${Environment}
+Outputs:
+  OriginAccessIdentiry:
+    Value:
+      Ref: CloudFrontOriginAccessIdentity
+    Export:
+      Name: !Sub "costengine-OriginAccessIdentity"
+  CloudFrontPortal:
+    Value:
+      Ref: CloudFrontDistribution
+    Export:
+      Name: !Sub "costengine-CloudFrontPortal"
+  CloudFrontDomainName:
+    Description: CloudFront Distribution Domain Name
+    Value:
+      Fn::GetAtt:
+        - CloudFrontDistribution
+        - DomainName  
+    Export:
+      Name: !Sub "costengine-CloudFrontDomainName"
