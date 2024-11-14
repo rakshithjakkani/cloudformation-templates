@@ -32,6 +32,7 @@ Resources:
   dummyInstace:
     Type: AWS::EC2::Instance
     DependsOn: DummySG
+    Condition: CreateProdResources
     Properties:
       ImageId: !Ref LatestAmiId
       InstanceType: t2.micro
@@ -45,6 +46,7 @@ Resources:
   
   dummySSHKey:
     Type: AWS::EC2::KeyPair
+    Condtion: CreateUatResources
     Properties: 
       KeyFormat: pem
       KeyName: cloudformation-test
